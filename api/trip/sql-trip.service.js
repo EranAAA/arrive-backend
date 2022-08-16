@@ -9,7 +9,7 @@ async function query(filter) {
    try {
 
       const queryStops = `
-         SELECT * 
+         SELECT stop_name 
          FROM gtfs_db.stops 
          WHERE stops >= 37290 AND stops <= 37396`
 
@@ -34,8 +34,8 @@ async function query(filter) {
 
       const stops = dbService.runSQL(queryStops)
       const routs = dbService.runSQL(queryRouts)
-      const stopsTime = dbService.runSQL(queryStopsTime)
-      const data = await Promise.all([stops, routs, stopsTime])
+      // const stopsTime = dbService.runSQL(queryStopsTime)
+      const data = await Promise.all([stops, routs, /*stopsTime*/])
 
       return data
 
