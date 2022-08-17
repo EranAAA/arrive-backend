@@ -12,6 +12,16 @@ async function getTrips(req, res) {
     }
 }
 
+async function getBySearch(req, res) {
+    try {
+        const trips = await tripService.search(req.query);
+        res.send(trips)
+    } catch (err) {
+        logger.error('Cannot get trips', err)
+        res.status(500).send({ err: 'Failed to get trips' })
+    }
+}
+
 async function updateTrip(req, res) {
     try {
         let trip = req.body
@@ -82,6 +92,7 @@ async function addTrip(req, res) {
 
 module.exports = {
     getTrips,
+    getBySearch,
     deleteTrip,
     addTrip,
     getById,

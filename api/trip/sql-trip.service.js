@@ -1,22 +1,19 @@
 const dbService = require('../../services/sql-db.service');
 
-let isWorkerOn = false;
-let gCb
-let gCurrId = 100
-
-async function query(filter) {
+async function query() {
 
    try {
 
       const queryStops = `
          SELECT stop_name 
          FROM gtfs_db.stops 
-         WHERE stops >= 37290 AND stops <= 37396`
+         WHERE stops >= 37290 AND stops <= 37396
+         ORDER BY stop_name`
 
       const queryRouts = `
          SELECT * 
          FROM gtfs_db.routes 
-         WHERE route_type = 2;`
+         WHERE route_type = 2`
 
       const queryStopsTime = `
          SELECT *
@@ -28,7 +25,7 @@ async function query(filter) {
             LEFT JOIN gtfs_db.routes routes ON
                routes.route_id = trips.route_id
          WHERE routes.route_type = 2 AND stops.stops >= 37290 
-         -- AND stops.stops <= 37396 AND 
+         -- AND stops.stops <= 37396 AND
          -- AND trips.trip_id = '1_34452'
          -- AND stop_times.stop_id = 37372 AND direction_id = 1 AND stop_times.stop_sequence = 1`
 
@@ -36,8 +33,46 @@ async function query(filter) {
       const routs = dbService.runSQL(queryRouts)
       // const stopsTime = dbService.runSQL(queryStopsTime)
       const data = await Promise.all([stops, routs, /*stopsTime*/])
-
       return data
+
+   } catch (err) {
+      logger.error('cannot find trips', err)
+      throw err
+   }
+}
+
+async function search({from, to, time}) {
+
+   try {
+
+      const querySearch =`
+      SELECT f.*, a.stop_sequence as stop_sequence_a, a.arrival_time as arrival_time_a, stops.stop_name stop_name_a
+      FROM
+         (SELECT stop_times.trip_id, stops.stop_name, stop_times.arrival_time, stop_times.stop_sequence, stop_times.stop_id,
+               stop_times.pickup_type, stop_times.drop_off_type, routes.route_long_name, trips.direction_id
+         FROM gtfs_db.stop_times stop_times
+            LEFT JOIN gtfs_db.trips trips ON
+               trips.trip_id = stop_times.trip_id
+            LEFT JOIN gtfs_db.stops stops ON
+               stops.stops = stop_times.stop_id
+            LEFT JOIN gtfs_db.routes routes ON
+               routes.route_id = trips.route_id
+         WHERE routes.route_type = 2 AND stops.stops >= 37290 
+         AND stops.stop_name = '${from}' AND stop_times.arrival_time >= TIME('${time}')) f
+      
+            LEFT JOIN gtfs_db.stop_times a ON
+               a.trip_id = f.trip_id 
+            LEFT JOIN gtfs_db.stops stops ON
+               stops.stops = a.stop_id
+              
+      WHERE stops.stop_name = '${to}' AND ( a.stop_sequence * 1 ) > ( f.stop_sequence * 1 )
+      ORDER BY f.arrival_time
+      LIMIT 10 `
+
+      const results = await dbService.runSQL(querySearch)
+      console.log('DONE');
+      console.log(results);
+      return results
 
    } catch (err) {
       logger.error('cannot find trips', err)
@@ -186,6 +221,7 @@ async function runWorker() {
 
 module.exports = {
    query,
+   search,
    remove,
    update,
    add,
