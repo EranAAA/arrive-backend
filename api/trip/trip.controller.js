@@ -22,6 +22,16 @@ async function getBySearch(req, res) {
     }
 }
 
+async function getSiriData(req, res) {
+    try {
+        const siri = await tripService.siri(req.query);
+        res.send(siri)
+    } catch (err) {
+        logger.error('Cannot get siri', err)
+        res.status(500).send({ err: 'Failed to get siri' })
+    }
+}
+
 async function updateTrip(req, res) {
     try {
         let trip = req.body
@@ -93,6 +103,7 @@ async function addTrip(req, res) {
 module.exports = {
     getTrips,
     getBySearch,
+    getSiriData,
     deleteTrip,
     addTrip,
     getById,

@@ -1,4 +1,6 @@
 const dbService = require('../../services/sql-db.service');
+const axios = require('axios');
+const { getSiriKey } = require('../../keys/siri-key');
 
 async function query() {
 
@@ -41,11 +43,11 @@ async function query() {
    }
 }
 
-async function search({from, to, time}) {
+async function search({ from, to, time }) {
 
    try {
 
-      const querySearch =`
+      const querySearch = `
       SELECT f.*, a.stop_sequence as stop_sequence_a, a.arrival_time as arrival_time_a, stops.stop_name stop_name_a, first_train.arrival_time as first_train
       FROM
          (SELECT stop_times.trip_id, stops.stop_name, stop_times.arrival_time, stop_times.stop_sequence, stop_times.stop_id,
@@ -74,10 +76,33 @@ async function search({from, to, time}) {
       const results = await dbService.runSQL(querySearch)
       console.log('DONE');
       console.log(results);
+
       return results
 
    } catch (err) {
       logger.error('cannot find trips', err)
+      throw err
+   }
+}
+
+async function siri(data) {
+   let { stop, train_no, route_id, direction } = data
+   const directionRef = direction === '1' ? 2 : direction === '0' ? 1 : direction === '0' ? 3 : direction
+   const KEY = getSiriKey()
+   const URL = `http://moran.mot.gov.il:110/Channels/HTTPChannel/SmQuery/2.8/json?Key=${KEY}&MonitoringRef=${stop}&PreviewInternal=PT1H#`
+
+   try {
+      const respone = await axios.get(URL);
+      const data = respone.data
+      const stopVisit = data.Siri.ServiceDelivery.StopMonitoringDelivery[0].MonitoredStopVisit
+
+      return stopVisit.filter(stop =>
+         stop.MonitoredVehicleJourney.LineRef == route_id &&
+         stop.MonitoredVehicleJourney.PublishedLineName == train_no &&
+         stop.MonitoredVehicleJourney.DirectionRef == (directionRef))
+
+   } catch (err) {
+      console.log('cant get live data!')
       throw err
    }
 }
@@ -224,6 +249,7 @@ async function runWorker() {
 module.exports = {
    query,
    search,
+   siri,
    remove,
    update,
    add,
