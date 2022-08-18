@@ -46,10 +46,10 @@ async function search({from, to, time}) {
    try {
 
       const querySearch =`
-      SELECT f.*, a.stop_sequence as stop_sequence_a, a.arrival_time as arrival_time_a, stops.stop_name stop_name_a
+      SELECT f.*, a.stop_sequence as stop_sequence_a, a.arrival_time as arrival_time_a, stops.stop_name stop_name_a, first_train.arrival_time as first_train
       FROM
          (SELECT stop_times.trip_id, stops.stop_name, stop_times.arrival_time, stop_times.stop_sequence, stop_times.stop_id,
-               stop_times.pickup_type, stop_times.drop_off_type, routes.route_long_name, trips.direction_id
+               stop_times.pickup_type, stop_times.drop_off_type, routes.route_long_name, trips.direction_id, stops.stop_code
          FROM gtfs_db.stop_times stop_times
             LEFT JOIN gtfs_db.trips trips ON
                trips.trip_id = stop_times.trip_id
@@ -64,6 +64,8 @@ async function search({from, to, time}) {
                a.trip_id = f.trip_id 
             LEFT JOIN gtfs_db.stops stops ON
                stops.stops = a.stop_id
+            LEFT JOIN ( select trip_id, arrival_time from gtfs_db.stop_times s where stop_sequence = 1 ) first_train ON
+ 		         first_train.trip_id = a.trip_id
               
       WHERE stops.stop_name = '${to}' AND ( a.stop_sequence * 1 ) > ( f.stop_sequence * 1 )
       ORDER BY f.arrival_time
