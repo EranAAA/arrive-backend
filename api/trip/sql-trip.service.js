@@ -49,7 +49,7 @@ async function search({from, to, time}) {
       SELECT f.*, a.stop_sequence as stop_sequence_a, a.arrival_time as arrival_time_a, stops.stop_name stop_name_a, first_train.arrival_time as first_train
       FROM
          (SELECT stop_times.trip_id, stops.stop_name, stop_times.arrival_time, stop_times.stop_sequence, stop_times.stop_id,
-               stop_times.pickup_type, stop_times.drop_off_type, routes.route_long_name, trips.direction_id, stops.stop_code
+               stop_times.pickup_type, stop_times.drop_off_type, routes.route_id, routes.route_desc as train_no, routes.route_long_name, trips.direction_id, stops.stop_code
          FROM gtfs_db.stop_times stop_times
             LEFT JOIN gtfs_db.trips trips ON
                trips.trip_id = stop_times.trip_id
