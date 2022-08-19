@@ -51,10 +51,13 @@ async function search({ from, to, time }) {
       SELECT f.*, a.stop_sequence as stop_sequence_a, a.arrival_time as arrival_time_a, stops.stop_name stop_name_a, first_train.arrival_time as first_train
       FROM
          (SELECT stop_times.trip_id, stops.stop_name, stop_times.arrival_time, stop_times.stop_sequence, stop_times.stop_id,
-               stop_times.pickup_type, stop_times.drop_off_type, routes.route_id, routes.route_desc as train_no, routes.route_long_name, trips.direction_id, stops.stop_code
+               stop_times.pickup_type, stop_times.drop_off_type, routes.route_id, routes.route_desc as train_no, routes.route_long_name, 
+               trips.direction_id, stops.stop_code, concat(sunday, monday, tuesday, wednesday, thursday, friday, saturday) days 
          FROM gtfs_db.stop_times stop_times
             LEFT JOIN gtfs_db.trips trips ON
                trips.trip_id = stop_times.trip_id
+            LEFT JOIN gtfs_db.calendar calendar ON
+               trips.service_id = calendar.service_id
             LEFT JOIN gtfs_db.stops stops ON
                stops.stops = stop_times.stop_id
             LEFT JOIN gtfs_db.routes routes ON
@@ -74,8 +77,8 @@ async function search({ from, to, time }) {
       LIMIT 10 `
 
       const results = await dbService.runSQL(querySearch)
-      console.log('DONE');
-      console.log(results);
+      // console.log('DONE');
+      // console.log(results);
 
       return results
 
@@ -86,15 +89,18 @@ async function search({ from, to, time }) {
 }
 
 async function siri(data) {
+   // console.log(data);
    let { stop, train_no, route_id, direction } = data
    const directionRef = direction === '1' ? 2 : direction === '0' ? 1 : direction === '0' ? 3 : direction
    const KEY = getSiriKey()
    const URL = `http://moran.mot.gov.il:110/Channels/HTTPChannel/SmQuery/2.8/json?Key=${KEY}&MonitoringRef=${stop}&PreviewInternal=PT1H#`
+   // console.log(URL);
 
    try {
       const respone = await axios.get(URL);
       const data = respone.data
       const stopVisit = data.Siri.ServiceDelivery.StopMonitoringDelivery[0].MonitoredStopVisit
+      // console.log(stopVisit);
 
       return stopVisit.filter(stop =>
          stop.MonitoredVehicleJourney.LineRef == route_id &&
