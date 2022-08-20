@@ -69,7 +69,7 @@ async function search({ from, to, time }) {
                a.trip_id = f.trip_id 
             LEFT JOIN gtfs_db.stops stops ON
                stops.stops = a.stop_id
-            LEFT JOIN ( select trip_id, arrival_time from gtfs_db.stop_times s where stop_sequence = 1 ) first_train ON
+            LEFT JOIN ( select trip_id, min(arrival_time)arrival_time from gtfs_db.stop_times s group by trip_id ) first_train ON
  		         first_train.trip_id = a.trip_id
               
       WHERE stops.stop_name = '${to}' AND ( a.stop_sequence * 1 ) > ( f.stop_sequence * 1 )
