@@ -63,7 +63,7 @@ async function search({ from, to, time }) {
             LEFT JOIN gtfs_db.routes routes ON
                routes.route_id = trips.route_id
          WHERE routes.route_type = 2 AND stops.stops >= 37290 
-         AND stops.stop_name = '${from}' AND stop_times.arrival_time >= TIME('${time}')) f
+         AND stops.stop_name = "${from}" AND stop_times.arrival_time >= TIME('${time}')) f
       
             LEFT JOIN gtfs_db.stop_times a ON
                a.trip_id = f.trip_id 
@@ -72,12 +72,12 @@ async function search({ from, to, time }) {
             LEFT JOIN ( select trip_id, min(arrival_time)arrival_time from gtfs_db.stop_times s group by trip_id ) first_train ON
  		         first_train.trip_id = a.trip_id
               
-      WHERE stops.stop_name = '${to}' AND ( a.stop_sequence * 1 ) > ( f.stop_sequence * 1 )
+      WHERE stops.stop_name = "${to}" AND ( a.stop_sequence * 1 ) > ( f.stop_sequence * 1 )
       ORDER BY f.arrival_time
       LIMIT 10 `
 
       const results = await dbService.runSQL(querySearch)
-      // console.log('DONE');
+      // console.log(querySearch);
       // console.log(results);
 
       return results
