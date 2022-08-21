@@ -5,7 +5,7 @@ var connection = mysql.createConnection({
     port: 3306,
     user: 'b6039f404295f5',
     password: '017ac88e',
-    database: 'us-cdbr-east-06.cleardb.net',
+    database: 'heroku_b8b55fff6ba3d4c',
     insecureAuth: true
 });
 
