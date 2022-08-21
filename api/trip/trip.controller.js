@@ -17,8 +17,8 @@ async function getBySearch(req, res) {
         const trips = await tripService.search(req.query);
         res.send(trips)
     } catch (err) {
-        logger.error('Cannot get trips', err)
-        res.status(500).send({ err: 'Failed to get trips' })
+        logger.error('Cannot get search', err)
+        res.status(500).send({ err: 'Failed to get search' })
     }
 }
 

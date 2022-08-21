@@ -5,7 +5,6 @@ const axios = require('axios');
 async function query() {
 
    try {
-
       const queryStops = `
          SELECT stop_name 
          FROM heroku_b8b55fff6ba3d4c.stops 
@@ -44,9 +43,9 @@ async function query() {
 }
 
 async function search({ from, to, time }) {
+   console.log('HERE');
 
    try {
-
       const querySearch = `
       SELECT f.*, a.stop_sequence as stop_sequence_a, a.arrival_time as arrival_time_a, stops.stop_name stop_name_a, first_train.arrival_time as first_train
       FROM
@@ -63,8 +62,7 @@ async function search({ from, to, time }) {
             LEFT JOIN heroku_b8b55fff6ba3d4c.routes routes ON
                routes.route_id = trips.route_id
          WHERE routes.route_type = 2 AND stops.stops >= 37290 
-         AND stops.stop_name = "${from}" AND stop_times.arrival_time >= TIME('${time}')) f
-      
+         AND stops.stop_name = "${from}" AND stop_times.arrival_time >= CAST(TIME('${time}') AS CHAR)) f
             LEFT JOIN heroku_b8b55fff6ba3d4c.stop_times a ON
                a.trip_id = f.trip_id 
             LEFT JOIN heroku_b8b55fff6ba3d4c.stops stops ON
@@ -83,7 +81,7 @@ async function search({ from, to, time }) {
       return results
 
    } catch (err) {
-      logger.error('cannot find trips', err)
+      logger.error('cannot find search', err)
       throw err
    }
 }
@@ -101,7 +99,7 @@ async function siri(data) {
       const respone = await axios.get(URL);
       const data = respone.data
       const stopVisit = data.Siri.ServiceDelivery.StopMonitoringDelivery[0].MonitoredStopVisit
-      // console.log(stopVisit);
+      console.log(stopVisit);
 
       return stopVisit.filter(stop =>
          stop.MonitoredVehicleJourney.LineRef == route_id &&
