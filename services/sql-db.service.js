@@ -26,7 +26,7 @@ connection.connect(err => {
     // if (err) throw new Error('mySql failed connection');
     console.log('connected to SQL server');
 })
-
+ 
 
 function runSQL(sqlCommand) {
     return new Promise((resolve, reject) => {
