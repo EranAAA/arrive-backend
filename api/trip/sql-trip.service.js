@@ -8,23 +8,23 @@ async function query() {
 
       const queryStops = `
          SELECT stop_name 
-         FROM gtfs_db.stops 
+         FROM heroku_b8b55fff6ba3d4c.stops 
          WHERE stops >= 37290 AND stops <= 37396
          ORDER BY stop_name`
 
       const queryRouts = `
          SELECT * 
-         FROM gtfs_db.routes 
+         FROM heroku_b8b55fff6ba3d4c.routes 
          WHERE route_type = 2`
 
       const queryStopsTime = `
          SELECT *
-         FROM gtfs_db.stop_times stop_times
-            LEFT JOIN gtfs_db.trips trips ON
+         FROM heroku_b8b55fff6ba3d4c.stop_times stop_times
+            LEFT JOIN heroku_b8b55fff6ba3d4c.trips trips ON
                trips.trip_id = stop_times.trip_id
-            LEFT JOIN gtfs_db.stops stops ON
+            LEFT JOIN heroku_b8b55fff6ba3d4c.stops stops ON
                stops.stops = stop_times.stop_id
-            LEFT JOIN gtfs_db.routes routes ON
+            LEFT JOIN heroku_b8b55fff6ba3d4c.routes routes ON
                routes.route_id = trips.route_id
          WHERE routes.route_type = 2 AND stops.stops >= 37290 
          -- AND stops.stops <= 37396 AND
@@ -32,9 +32,9 @@ async function query() {
          -- AND stop_times.stop_id = 37372 AND direction_id = 1 AND stop_times.stop_sequence = 1`
 
       const stops = dbService.runSQL(queryStops)
-      const routs = dbService.runSQL(queryRouts)
+      // const routs = dbService.runSQL(queryRouts)
       // const stopsTime = dbService.runSQL(queryStopsTime)
-      const data = await Promise.all([stops, routs, /*stopsTime*/])
+      const data = await Promise.all([stops, /*routs,*/ /*stopsTime*/])
       return data
 
    } catch (err) {
@@ -53,23 +53,23 @@ async function search({ from, to, time }) {
          (SELECT stop_times.trip_id, stops.stop_name, stop_times.arrival_time, stop_times.stop_sequence, stop_times.stop_id,
                stop_times.pickup_type, stop_times.drop_off_type, routes.route_id, routes.route_desc as train_no, routes.route_long_name, 
                trips.direction_id, stops.stop_code, concat(sunday, monday, tuesday, wednesday, thursday, friday, saturday) days 
-         FROM gtfs_db.stop_times stop_times
-            LEFT JOIN gtfs_db.trips trips ON
+         FROM heroku_b8b55fff6ba3d4c.stop_times stop_times
+            LEFT JOIN heroku_b8b55fff6ba3d4c.trips trips ON
                trips.trip_id = stop_times.trip_id
-            LEFT JOIN gtfs_db.calendar calendar ON
+            LEFT JOIN heroku_b8b55fff6ba3d4c.calendar calendar ON
                trips.service_id = calendar.service_id
-            LEFT JOIN gtfs_db.stops stops ON
+            LEFT JOIN heroku_b8b55fff6ba3d4c.stops stops ON
                stops.stops = stop_times.stop_id
-            LEFT JOIN gtfs_db.routes routes ON
+            LEFT JOIN heroku_b8b55fff6ba3d4c.routes routes ON
                routes.route_id = trips.route_id
          WHERE routes.route_type = 2 AND stops.stops >= 37290 
          AND stops.stop_name = "${from}" AND stop_times.arrival_time >= TIME('${time}')) f
       
-            LEFT JOIN gtfs_db.stop_times a ON
+            LEFT JOIN heroku_b8b55fff6ba3d4c.stop_times a ON
                a.trip_id = f.trip_id 
-            LEFT JOIN gtfs_db.stops stops ON
+            LEFT JOIN heroku_b8b55fff6ba3d4c.stops stops ON
                stops.stops = a.stop_id
-            LEFT JOIN ( select trip_id, min(arrival_time)arrival_time from gtfs_db.stop_times s group by trip_id ) first_train ON
+            LEFT JOIN ( select trip_id, min(arrival_time)arrival_time from heroku_b8b55fff6ba3d4c.stop_times s group by trip_id ) first_train ON
  		         first_train.trip_id = a.trip_id
               
       WHERE stops.stop_name = "${to}" AND ( a.stop_sequence * 1 ) > ( f.stop_sequence * 1 )
