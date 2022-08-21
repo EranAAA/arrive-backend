@@ -1,6 +1,6 @@
 const dbService = require('../../services/sql-db.service');
 const axios = require('axios');
-const { getSiriKey } = require('../../keys/siri-key');
+// const { getSiriKey } = require('../../keys/siri-key');
 
 async function query() {
 
@@ -92,7 +92,8 @@ async function siri(data) {
    // console.log(data);
    let { stop, train_no, route_id, direction } = data
    const directionRef = direction === '1' ? 2 : direction === '0' ? 1 : direction === '0' ? 3 : direction
-   const KEY = getSiriKey()
+   // const KEY = getSiriKey()
+   const KEY = 'EA5145411'
    const URL = `http://moran.mot.gov.il:110/Channels/HTTPChannel/SmQuery/2.8/json?Key=${KEY}&MonitoringRef=${stop}&PreviewInternal=PT1H#`
    // console.log(URL);
 
