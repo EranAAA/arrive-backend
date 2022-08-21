@@ -35,7 +35,7 @@ app.use('/api/trip', tripRoutes)
 
 // Last fallback
 app.get('/**', (req, res) => {
-   // res.sendFile(path.join(__dirname, 'public', 'index.html'))
+   res.sendFile(path.join(__dirname, 'public', 'index.html'))
 })
 
 const port = process.env.PORT || 3030
