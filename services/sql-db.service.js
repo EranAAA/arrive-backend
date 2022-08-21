@@ -1,13 +1,25 @@
 var mysql = require('mysql');
 
 var connection = mysql.createConnection({
-    host: 'localhost',
+    host: 'us-cdbr-east-06.cleardb.net',
     port: 3306,
-    user: 'root',
-    password: 'Ctu0Ctu0',
-    database: 'gtfs_db',
+    user: 'b6039f404295f5',
+    password: '017ac88e',
+    database: 'us-cdbr-east-06.cleardb.net',
     insecureAuth: true
 });
+
+// CLEARDB_DATABASE_URL
+// mysql://b6039f404295f5:017ac88e@us-cdbr-east-06.cleardb.net/heroku_b8b55fff6ba3d4c?
+
+// var connection = mysql.createConnection({
+//     host: 'localhost',
+//     port: 3306,
+//     user: 'root',
+//     password: 'Ctu0Ctu0',
+//     database: 'gtfs_db',
+//     insecureAuth: true
+// });
 
 connection.connect(err => {
     console.log(err)
