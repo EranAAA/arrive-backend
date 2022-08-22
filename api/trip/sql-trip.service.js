@@ -43,7 +43,7 @@ async function query() {
 }
 
 async function search({ from, to, time }) {
-   console.log('HERE');
+   // console.log('HERE');
 
    try {
       const querySearch = `
@@ -99,7 +99,7 @@ async function siri(data) {
       const respone = await axios.get(URL);
       const data = respone.data
       const stopVisit = data.Siri.ServiceDelivery.StopMonitoringDelivery[0].MonitoredStopVisit
-      console.log(stopVisit);
+      // console.log(stopVisit);
 
       return stopVisit.filter(stop =>
          stop.MonitoredVehicleJourney.LineRef == route_id &&
